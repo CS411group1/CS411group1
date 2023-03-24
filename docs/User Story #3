@@ -1,0 +1,3 @@
+As a logged-in user (refer to 1), I want to search up artists and get cheap options of flight tickets to their concert’s location (Refer to 2) and back to 
+my original city the day after. This way, I will be getting the cheapest options for a round-trip to the city in which the concert is. 
+(The app will already know the date of the concert. So, the user will be getting the cheapest options to fly the day before and then the day after.)
