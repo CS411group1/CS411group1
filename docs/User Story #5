@@ -1,0 +1,3 @@
+As a logged-in user (refer to 1), I want to get cheap flight tickets (Refer to 2) for a concert’s city (refer to 3); however, instead of returning to my 
+original location, I want to get tickets for another flight in a third city and then fly back to the first city, so that I can attend a second concert. 
+(The app will alert the user, if accomplishing this is not possible - no flights, not enough time)
