@@ -1,0 +1,3 @@
+As a logged-in user (refer to 1), I want to get flight tickets (Refer to 2) to the concert I am attending (refer to 3); however, I want the dates to be 
+more flexible. This way, I can choose how many days before and after I can stay in that city.
+(Accomplished with a drag bar mechanism? - The user will choose the amount of days to stay before and after the concert in the second city)
