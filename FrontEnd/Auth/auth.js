@@ -30,6 +30,9 @@ import { getAuth, GoogleAuthProvider, signInWithRedirect, getRedirectResult } fr
             const user = result.user;
                 // IdP data available using getAdditionalUserInfo(result)
                 // ...
+            window.location.href = "./../Index/index.html";
+            alert("Successful log-in)");
+
         }).catch((error) => {
                 // Handle Errors here.
             const errorCode = error.code;
