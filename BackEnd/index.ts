@@ -1,15 +1,26 @@
 import express, { Request, Response } from "express";
 import axios from "axios";
 import dotenv from "dotenv";
+import cors from "cors";
 dotenv.config();
+
 const app = express();
 
+app.use(
+	cors({
+		origin: "*",
+	})
+);
+app.use(express.json());
 const env = {
 	rapidApiKey: process.env.rapidApiKey,
 	rapidApiHost: process.env.rapidApiHost,
 	clientId: process.env.seatGeekClientId,
 };
 
+console.log(env.rapidApiHost);
+console.log(env.rapidApiKey);
+console.log(env.clientId);
 app.get("/", (req: Request, res: Response) => {
 	res.send("Hello World!");
 });
@@ -23,8 +34,9 @@ app.get("/events", (req, res) => {
 	console.log("Performer Event Url", getPerformerEventsUrl);
 	axios
 		.get(getPerformerEventsUrl, {
-			headers: {
-				Authorization: `Bearer ${env.clientId}`,
+			auth: {
+				// @ts-ignore
+				username: env.clientId,
 			},
 		})
 		.then((response) => {
