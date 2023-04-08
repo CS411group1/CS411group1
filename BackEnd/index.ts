@@ -7,10 +7,33 @@ const app = express();
 const env = {
 	rapidApiKey: process.env.rapidApiKey,
 	rapidApiHost: process.env.rapidApiHost,
+	clientId: process.env.seatGeekClientId,
 };
 
 app.get("/", (req: Request, res: Response) => {
 	res.send("Hello World!");
+});
+
+const seatgeekApi = "https://api.seatgeek.com/2/events/";
+
+app.get("/events", (req, res) => {
+	const eventUrl = "?q=";
+	const performer = req.query.q;
+	const getPerformerEventsUrl = `${seatgeekApi}${eventUrl}${performer}`;
+	console.log("Performer Event Url", getPerformerEventsUrl);
+	axios
+		.get(getPerformerEventsUrl, {
+			headers: {
+				Authorization: `Bearer ${env.clientId}`,
+			},
+		})
+		.then((response) => {
+			console.log("SeatGeek Response Data", response.data);
+			res.send(response.data);
+		})
+		.catch((error) => {
+			console.log(error);
+		});
 });
 
 app.get("/users", () => {
