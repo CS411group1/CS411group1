@@ -2,6 +2,7 @@ import express, { Request, Response } from "express";
 import axios from "axios";
 import dotenv from "dotenv";
 import cors from "cors";
+import passport from "passport";
 dotenv.config();
 
 const app = express();
@@ -12,6 +13,7 @@ app.use(
 	})
 );
 app.use(express.json());
+
 const env = {
 	rapidApiKey: process.env.rapidApiKey,
 	rapidApiHost: process.env.rapidApiHost,
@@ -26,6 +28,24 @@ app.get("/", (req: Request, res: Response) => {
 });
 
 const seatgeekApi = "https://api.seatgeek.com/2/events/";
+
+app.get("/auth/google", passport.authenticate("google", { scope: ["email"] }));
+
+app.get(
+	"/auth/google/callback",
+	passport.authenticate("google", {
+		successRedirect: "/auth/google/success",
+		failureRedirect: "/auth/google/failure",
+	})
+);
+
+app.get("/auth/google/success", (req, res) => {
+	res.send("sucess");
+});
+
+app.get("/auth/google/failure", (req, res) => {
+	res.send("failure");
+});
 
 app.get("/events", (req, res) => {
 	const eventUrl = "?q=";
