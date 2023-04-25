@@ -48,6 +48,70 @@ app.get("/events", (req, res) => {
 		});
 });
 
+app.post("/airports", async (req, res) => {
+	const getNearestAirport = async (
+		longitude: number,
+		latitude: number,
+		api_key: string
+	): Promise<string | null> => {
+		const url = `http://api.aviationstack.com/v1/airports?access_key=${api_key}&limit=1&offset=0&lat=${latitude}&lon=${longitude}`;
+		try {
+			const response = await axios.get(url);
+			const c = response.data.data[0].icao_code;
+			return c;
+		} catch (error) {
+			console.error(error);
+			return null;
+		}
+	};
+
+	const getAirportFromICAOCode = async (
+		icaoCode: string,
+		api_key: string
+	) => {
+		const url = `https://aeroapi.flightaware.com/aeroapi/airports/${icaoCode}`;
+		//console.log("Before try/catch axios - url");
+		try {
+			//console.log("Before axios call to flightaware");
+			const response = await axios.get(url, {
+				headers: {
+					Accept: "application/json; charset=UTF-8",
+					"x-apikey": api_key,
+				},
+			});
+			//console.log("AFteraxios call to flightaware");
+			return response.data;
+		} catch (error) {
+			console.error(error);
+			return null;
+		}
+	};
+
+	//@ts-ignore
+	const longitude = parseInt(req.query.long);
+	//@ts-ignore
+	const latitude = parseInt(req.query.lat);
+	const aviationApiKey = process.env.AVIATION_STACK_KEY;
+	const flightAwareApiKey = process.env.FLIGHT_AWARE_KEY;
+	const code = await getNearestAirport(
+		longitude,
+		latitude,
+		//@ts-ignore
+		aviationApiKey
+	);
+	if (code) {
+		const airportData = await getAirportFromICAOCode(
+			code,
+			//@ts-ignore
+			flightAwareApiKey
+		);
+		res.json(airportData);
+	} else {
+		res.send({});
+	}
+});
+
+/*
 app.get("/users", () => {
 	console.log(env.rapidApiHost);
 	console.log(env.rapidApiKey);
@@ -70,6 +134,7 @@ app.get("/users", () => {
 			console.error(error);
 		});
 });
+*/
 
 app.listen(3000, () => {
 	console.log("Server listening on port 3000");
