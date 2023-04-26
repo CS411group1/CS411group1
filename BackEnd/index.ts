@@ -3,6 +3,11 @@ import axios from "axios";
 import dotenv from "dotenv";
 import cors from "cors";
 import passport from "passport";
+import path from "path";
+import session from "express-session";
+import { firestore } from "./firebase";
+import { addDoc, collection } from "firebase/firestore";
+require("./auth");
 dotenv.config();
 
 const app = express();
@@ -12,6 +17,9 @@ app.use(
 		origin: "*",
 	})
 );
+app.use(session({ secret: "cats", resave: false, saveUninitialized: true }));
+app.use(passport.initialize());
+app.use(passport.session());
 app.use(express.json());
 
 const env = {
@@ -20,13 +28,6 @@ const env = {
 	clientId: process.env.seatGeekClientId,
 };
 
-console.log(env.rapidApiHost);
-console.log(env.rapidApiKey);
-console.log(env.clientId);
-app.get("/", (req: Request, res: Response) => {
-	res.send("Hello World!");
-});
-
 const seatgeekApi = "https://api.seatgeek.com/2/events/";
 
 app.get("/auth/google", passport.authenticate("google", { scope: ["email"] }));
@@ -34,33 +35,76 @@ app.get("/auth/google", passport.authenticate("google", { scope: ["email"] }));
 app.get(
 	"/auth/google/callback",
 	passport.authenticate("google", {
-		successRedirect: "/auth/google/success",
+		successRedirect: "/concerts",
 		failureRedirect: "/auth/google/failure",
 	})
 );
 
-app.get("/auth/google/success", (req, res) => {
-	res.send("sucess");
+//@ts-ignore
+const isLoggedIn = (req, res, next) => {
+	if (req.user) {
+		next();
+	} else {
+		res.status(401).send({
+			error: "Unauthorized",
+		});
+	}
+};
+
+app.use("/static", express.static(path.join(__dirname, "../FrontEnd/")));
+
+app.get("/concerts", isLoggedIn, (req, res) => {
+	res.sendFile(path.join(__dirname, "../FrontEnd/concerts.html"));
+});
+
+app.get("/", (req, res) => {
+	res.sendFile(path.join(__dirname, "../FrontEnd/index.html"));
+});
+
+app.get("/login", (req, res) => {
+	res.sendFile(path.join(__dirname, "../FrontEnd/login.html"));
 });
 
 app.get("/auth/google/failure", (req, res) => {
 	res.send("failure");
 });
 
+app.get("/user_airports", isLoggedIn, (req, res) => {
+	const data = {
+		//@ts-ignore
+		userid: req.user.email,
+
+		//@ts-ignore
+		airports: req.user.airports,
+	};
+	res.send(data);
+});
+
+app.post("/user_airports", isLoggedIn, async (req, res) => {
+	const { airport, concert } = req.body;
+	const airportCollection = collection(firestore, "airports");
+	const doc = await addDoc(airportCollection, {
+		//@ts-ignore
+		userid: req.user.email,
+		airport,
+	});
+	res.send({
+		status: "success",
+	});
+});
+
 app.get("/events", (req, res) => {
 	const eventUrl = "?q=";
 	const performer = req.query.q;
 	const getPerformerEventsUrl = `${seatgeekApi}${eventUrl}${performer}`;
-	console.log("Performer Event Url", getPerformerEventsUrl);
 	axios
 		.get(getPerformerEventsUrl, {
+			// @ts-ignore
 			auth: {
-				// @ts-ignore
 				username: env.clientId,
 			},
 		})
 		.then((response) => {
-			console.log("SeatGeek Response Data", response.data);
 			res.send(response.data);
 		})
 		.catch((error) => {
@@ -68,7 +112,7 @@ app.get("/events", (req, res) => {
 		});
 });
 
-app.post("/airports", async (req, res) => {
+app.get("/airports", async (req, res) => {
 	const getNearestAirport = async (
 		longitude: number,
 		latitude: number,

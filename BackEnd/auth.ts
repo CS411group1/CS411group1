@@ -1,12 +1,21 @@
 import GoogleStategy from "passport-google-oauth2";
 import passport from "passport";
 import dotenv from "dotenv";
+import { firestore } from "./firebase";
+import {
+	collection,
+	doc,
+	getDocs,
+	query,
+	setDoc,
+	where,
+} from "firebase/firestore";
 
 dotenv.config();
 //@ts-ignore
 const GOOGLE_CLIENT_ID: string = process.env.GOOGLE_CLIENT_ID;
 //@ts-ignore
-const GOOGLE_CLIENT_SECRET: string = process.env.GOOGLE_CLIENT_ID;
+const GOOGLE_CLIENT_SECRET: string = process.env.GOOGLE_CLIENT_SECRET;
 passport.use(
 	new GoogleStategy.Strategy(
 		{
@@ -16,14 +25,37 @@ passport.use(
 			passReqToCallback: true,
 		},
 		//@ts-ignore
-		function (request, accessToken, refreshToken, profile, done) {}
+		async function (request, accessToken, refreshToken, profile, done) {
+			const user = {
+				email: profile.emails[0].value,
+			};
+			const usersRef = doc(firestore, "users", user.email);
+			await setDoc(usersRef, user, { merge: true });
+			return done(null, { ...user });
+		}
 	)
 );
 
 passport.serializeUser((user, done) => {
-	done(null, user);
+	done(null, {
+		//@ts-ignore
+		email: user.email,
+	});
 });
 
-passport.deserializeUser((user, done) => {
-	done(null, user);
+passport.deserializeUser(async (user, done) => {
+	const usersRef = collection(firestore, "airports");
+	//@ts-ignore
+	const q = query(usersRef, where("userid", "==", user.email));
+	const docs = await getDocs(q);
+	const airports: string[] = [];
+	docs.forEach((doc) => {
+		//@ts-ignore
+		airports.push(doc.data().airport);
+	});
+	done(null, {
+		//@ts-ignore
+		email: user.email,
+		airports,
+	});
 });
