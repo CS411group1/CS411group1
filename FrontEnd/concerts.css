@@ -1,0 +1,41 @@
+body {
+    font-family: 'Open Sans', sans-serif;
+    font-size: 16px;
+    color: #333;
+    background-color: #c8d9f1;
+    text-align: center;
+    margin: 0;
+}
+
+h1, h2 {
+    margin-top: 50px;
+}
+
+#performer-search {
+    padding: 10px;
+    margin-right: 10px;
+    border-radius: 5px;
+    border: none;
+    box-shadow: 0px 0px 5px #ccc;
+}
+
+#search-btn {
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    background-color: #333;
+    color: #fff;
+    cursor: pointer;
+}
+
+#search-btn:hover {
+    background-color: #555;
+}
+
+#saved-concerts {
+    margin-top: 50px;
+}
+
+#concert-container {
+    margin-top: 20px;
+}
