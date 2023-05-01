@@ -2,6 +2,105 @@
 <html>
 	<head>
 		<title>Fly2Gig</title>
+		<style>
+			/* Set default font family and color */
+			body {
+				font-family: Arial, sans-serif;
+				color: #333;
+			}
+
+			/* Style headings */
+			h1 {
+				font-size: 36px;
+				margin-bottom: 10px;
+			}
+
+			h2 {
+				font-size: 24px;
+				margin-bottom: 10px;
+			}
+
+			/* Style the search form */
+			form {
+				margin-top: 20px;
+			}
+
+			input[type="text"] {
+				padding: 10px;
+				font-size: 18px;
+				border: none;
+				border-radius: 5px;
+				margin-right: 10px;
+				width: 300px;
+			}
+
+			button#search-btn {
+				padding: 10px;
+				background-color: #008cba;
+				color: white;
+				border: none;
+				border-radius: 5px;
+				cursor: pointer;
+			}
+
+			/* Style saved concerts container */
+			#saved-concerts {
+				margin-top: 20px;
+			}
+
+			#saved-concerts div {
+				border: 1px solid #ccc;
+				padding: 10px;
+				margin-bottom: 10px;
+			}
+
+			/* Style the concert container */
+			#concert-container {
+				display: flex;
+				flex-wrap: wrap;
+				justify-content: space-between;
+				margin-top: 20px;
+			}
+
+			.concertElement {
+				width: 30%;
+				border: 1px solid #ccc;
+				padding: 10px;
+				margin-bottom: 10px;
+			}
+
+			.saveConcertButton {
+				padding: 10px;
+				background-color: #008cba;
+				color: white;
+				border: none;
+				border-radius: 5px;
+				cursor: pointer;
+				margin-bottom: 10px;
+			}
+
+			/* Style the username */
+			#username {
+				font-weight: bold;
+			}
+
+			/* Style the simplify jobs container */
+			#simplifyJobsContainer {
+				position: fixed;
+				bottom: 10px;
+				right: 10px;
+				background-color: #333;
+				color: white;
+				padding: 10px;
+				border-radius: 5px;
+				cursor: pointer;
+			}
+
+			#simplifyJobsContainer span {
+				display: inline-block;
+				margin-right: 5px;
+			}
+		</style>
 	</head>
 	<body id="onload-body">
 		<h1>Fly2Gig-Prototype</h1>

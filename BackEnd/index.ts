@@ -75,18 +75,27 @@ app.get("/user_airports", isLoggedIn, (req, res) => {
 		userid: req.user.email,
 
 		//@ts-ignore
-		airports: req.user.airports,
+		icaoCode: req.user.icaoCode,
+
+		//@ts-ignore
+		airportName: req.user.airportName,
+
+		// concert and passportjs
+		//@ts-ignore
+		concert: req.user.concert,
 	};
 	res.send(data);
 });
 
 app.post("/user_airports", isLoggedIn, async (req, res) => {
-	const { airport, concert } = req.body;
+	const { airportName, concert, icaoCode } = req.body;
 	const airportCollection = collection(firestore, "airports");
 	const doc = await addDoc(airportCollection, {
 		//@ts-ignore
 		userid: req.user.email,
-		airport,
+		airportName,
+		concert,
+		icaoCode,
 	});
 	res.send({
 		status: "success",
@@ -111,7 +120,43 @@ app.get("/events", (req, res) => {
 			console.log(error);
 		});
 });
+app.get("/nearest_airports", async (req, res) => {
+	const aviationApiKey = process.env.AVIATION_STACK_KEY;
+	//@ts-ignore
+	const longitude = parseInt(req.query.long);
+	//@ts-ignore
+	const latitude = parseInt(req.query.lat);
+	const getNearestAirport = async (
+		longitude: number,
+		latitude: number,
+		api_key: string
+	): Promise<any | null> => {
+		const url = `http://api.aviationstack.com/v1/airports?access_key=${api_key}&limit=1&offset=0&lat=${latitude}&lon=${longitude}`;
+		try {
+			const response = await axios.get(url);
+			let responseLength = response.data.data.length;
+			let n = responseLength;
+			let r = Math.floor(Math.random() * n) + 1;
+			const c = response.data.data[r - 1].icao_code;
+			const airportName = response.data.data[r - 1].airport_name;
+			return {
+				icaoCode: c,
+				airportName,
+			};
+		} catch (error) {
+			console.error(error);
+			return null;
+		}
+	};
+	const nearestAirport = await getNearestAirport(
+		longitude,
+		latitude,
+		aviationApiKey
+	);
+	res.send(nearestAirport);
+});
 
+/*
 app.get("/airports", async (req, res) => {
 	const getNearestAirport = async (
 		longitude: number,
@@ -174,7 +219,7 @@ app.get("/airports", async (req, res) => {
 		res.send({});
 	}
 });
-
+*/
 /*
 app.get("/users", () => {
 	console.log(env.rapidApiHost);

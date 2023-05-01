@@ -6,12 +6,29 @@ window.addEventListener("load", async () => {
 	const username = document.getElementById("username");
 	const response = await fetch(apiRoot + "/user_airports");
 	const data = await response.json();
+	const airport = data.airportName;
+	const icaoCode = data.icaoCode;
+	const concert = data.concert;
 	username.innerHTML = data.userid;
-	data.airports.forEach((airport) => {
-		let div = document.createElement("div");
-		div.innerHTML = "ICAO_CODE Airport:" + airport;
-		savedConcerts.appendChild(div);
+	let div = document.createElement("div");
+	// concert and passportjs
+	icaoCode.forEach((code) => {
+		let p = document.createElement("p");
+		p.innerHTML = "ICAO_CODE Airport:" + code;
+		div.appendChild(p);
 	});
+	airport.forEach((airport) => {
+		let p = document.createElement("p");
+		p.innerHTML = "Airport Name:" + airport;
+		div.appendChild(p);
+	});
+	concert.forEach((concert) => {
+		// come back here - airportName and not just airport
+		let p = document.createElement("p");
+		p.innerHTML = "concert:" + concert;
+		div.appendChild(p);
+	});
+	savedConcerts.appendChild(div);
 });
 
 function createConcertElements(concerts) {
@@ -27,12 +44,6 @@ function createConcertElements(concerts) {
 		const long = concert.venue.location.lon;
 		const lat = concert.venue.location.lat;
 
-		const response = await fetch(
-			apiRoot + `/airports?long=${long}&lat=${lat}`
-		);
-		const data = await response.json();
-		console.log("response data", data);
-		const icao_code = data;
 		const fullLocation = `${concertAddress} ${concertCity} ${concertState}, ${concertCountry}`;
 
 		const concertElement = document.createElement("div"); // Create a new div element for the book
@@ -47,25 +58,37 @@ function createConcertElements(concerts) {
 
 		const button = document.createElement("button");
 		button.textContent = "Save Airport and Concert";
-		button.onclick = (e) => {
+		button.onclick = async (e) => {
+			const response = await fetch(
+				apiRoot + `/nearest_airports?long=${long}&lat=${lat}`
+			);
+			const data = await response.json();
+			console.log("response data", data);
+			const icaoCode = data?.icaoCode;
+			const airportName = data?.airportName;
 			fetch(apiRoot + "/user_airports", {
 				method: "POST",
 				headers: {
 					"Content-Type": "application/json",
 				},
 				body: JSON.stringify({
-					airport: icao_code,
+					icaoCode,
+					airportName,
 					concert: concertName,
 				}),
 			});
 		};
 
+		/*
 		const airportElement = document.createElement("div");
 		airportElement.textContent = icao_code;
 		airportElement.appendChild(button);
-
 		concertElement.append(airportElement);
-
+        */
+		container.className = "concertContainer";
+		concertElement.className = "concertElement";
+		button.className = "saveConcertButton";
+		container.appendChild(button);
 		container.appendChild(concertElement); // Append the book element to the container element
 	});
 }

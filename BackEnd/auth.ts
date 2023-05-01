@@ -48,14 +48,20 @@ passport.deserializeUser(async (user, done) => {
 	//@ts-ignore
 	const q = query(usersRef, where("userid", "==", user.email));
 	const docs = await getDocs(q);
-	const airports: string[] = [];
+	const airportName: string[] = [];
+	const concert = [];
+	const icaoCode = [];
 	docs.forEach((doc) => {
 		//@ts-ignore
-		airports.push(doc.data().airport);
+		airportName.push(doc.data().airportName);
+		concert.push(doc.data().concert);
+		icaoCode.push(doc.data().icaoCode);
 	});
 	done(null, {
 		//@ts-ignore
 		email: user.email,
-		airports,
+		airportName,
+		concert,
+		icaoCode,
 	});
 });
